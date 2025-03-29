@@ -8,15 +8,23 @@ import ContactList from "../ContactList/ContactList";
 import initialContacts from "../contactData.json";
 import Notification from "../Notification/Notification";
 
-import { Analytics } from "@vercel/analytics/react";
+// import { Analytics } from "@vercel/analytics/react";
 
 import "./App.css";
+import { useSelector } from "react-redux";
+// import { useDispatch } from "react-redux";
+// import { deleteAnyContact } from "../../redux/store";
 
 export default function App() {
   const [contacts, setContacts] = useState(() => {
     const savedData = localStorage.getItem("myContacts");
     return savedData ? JSON.parse(savedData) : initialContacts;
   });
+
+  // Рефакторінг
+  const globalContacts = useSelector((state) => state.contacts);
+  console.log(globalContacts);
+  // /Рефакторінг
 
   const [myFilter, setMyFilter] = useState("");
 
@@ -31,6 +39,13 @@ export default function App() {
       return prevContacts.filter((contact) => contact.id !== contactId);
     });
   };
+
+  // Рефакторінг
+  // const dispatch = useDispatch();
+  // const handleDeleteAnyContact = (contactId) => {
+  //   dispatch(deleteAnyContactAction(contactId));
+  // };
+  // /Рефакторінг
 
   const visibleContacts = contacts.filter((contact) =>
     contact.name.toLowerCase().includes(myFilter.toLocaleLowerCase())
@@ -48,7 +63,7 @@ export default function App() {
         <SearchBox value={myFilter} onFilter={setMyFilter} />
         <div>{contacts.length === 0 && <Notification />}</div>
         <ContactList contacts={visibleContacts} onDelete={deleteContact} />
-        <Analytics />
+        {/* <Analytics /> */}
       </Container>
     </Section>
   );
