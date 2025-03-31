@@ -14,11 +14,6 @@ import "./App.css";
 
 export default function App() {
   const contacts = useSelector((state) => state.contacts.items);
-  const filter = useSelector((state) => state.filters.name);
-
-  const visibleContacts = contacts.filter((contact) =>
-    contact.name.toLowerCase().includes(filter.toLowerCase())
-  );
 
   return (
     <Section>
@@ -27,7 +22,7 @@ export default function App() {
         <ContactForm />
         <SearchBox />
         <div>{contacts.length === 0 && <Notification />}</div>
-        <ContactList contacts={visibleContacts} />
+        <ContactList />
         <Analytics />
       </Container>
     </Section>
