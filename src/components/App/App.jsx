@@ -1,69 +1,34 @@
-import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+
+import { Analytics } from "@vercel/analytics/react";
+
 import Section from "../Section/Section";
 import Container from "../Container/Container";
 import Heading from "../Heading/Heading";
 import ContactForm from "../ContactForm/ContactForm";
 import SearchBox from "../SearchBox/SearchBox";
 import ContactList from "../ContactList/ContactList";
-import initialContacts from "../contactData.json";
 import Notification from "../Notification/Notification";
 
-// import { Analytics } from "@vercel/analytics/react";
-
 import "./App.css";
-import { useSelector } from "react-redux";
-// import { useDispatch } from "react-redux";
-// import { deleteAnyContact } from "../../redux/store";
 
 export default function App() {
-  const [contacts, setContacts] = useState(() => {
-    const savedData = localStorage.getItem("myContacts");
-    return savedData ? JSON.parse(savedData) : initialContacts;
-  });
-
-  // Рефакторінг
-  const globalContacts = useSelector((state) => state.contacts);
-  console.log(globalContacts);
-  // /Рефакторінг
-
-  const [myFilter, setMyFilter] = useState("");
-
-  const addContact = (newContact) => {
-    setContacts((prevContacts) => {
-      return [...prevContacts, newContact];
-    });
-  };
-
-  const deleteContact = (contactId) => {
-    setContacts((prevContacts) => {
-      return prevContacts.filter((contact) => contact.id !== contactId);
-    });
-  };
-
-  // Рефакторінг
-  // const dispatch = useDispatch();
-  // const handleDeleteAnyContact = (contactId) => {
-  //   dispatch(deleteAnyContactAction(contactId));
-  // };
-  // /Рефакторінг
+  const contacts = useSelector((state) => state.contacts.items);
+  const filter = useSelector((state) => state.filters.name);
 
   const visibleContacts = contacts.filter((contact) =>
-    contact.name.toLowerCase().includes(myFilter.toLocaleLowerCase())
+    contact.name.toLowerCase().includes(filter.toLowerCase())
   );
-
-  useEffect(() => {
-    localStorage.setItem("myContacts", JSON.stringify(contacts));
-  }, [contacts]);
 
   return (
     <Section>
       <Container>
-        <Heading title="Phonebook" bottom tag={`h1`} />
-        <ContactForm onAdd={addContact} />
-        <SearchBox value={myFilter} onFilter={setMyFilter} />
+        <Heading title="Phonebook release with Redux" bottom tag={`h1`} />
+        <ContactForm />
+        <SearchBox />
         <div>{contacts.length === 0 && <Notification />}</div>
-        <ContactList contacts={visibleContacts} onDelete={deleteContact} />
-        {/* <Analytics /> */}
+        <ContactList contacts={visibleContacts} />
+        <Analytics />
       </Container>
     </Section>
   );

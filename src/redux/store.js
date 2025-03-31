@@ -1,43 +1,46 @@
-import { configureStore, createAction } from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit";
+import contactsReducer from "./contactsSlice";
+import filtersReducer from "./filtersSlice";
+import {
+  persistStore,
+  persistReducer,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from "redux-persist";
+import storage from "redux-persist/lib/storage";
 import initialContacts from "../components/contactData.json";
 
-const initialState = {
-  balance: {
-    value: 0,
-  },
-  contacts: initialContacts,
+const persistConfig = {
+  key: "contacts",
+  storage,
+  whitelist: ["items"],
 };
 
-const rootReducer = (state = initialState, action) => {
-  // console.log(action);
-  switch (action.type) {
-    case "contacts/addNewContact":
-      return { ...state, contacts: [...state.contacts, action.payload] };
-    case "contacts/deleteAnyContact":
-      return {
-        ...state,
-        contacts: state.contacts.filter(
-          (contact) => contact.id !== action.payload.id
-        ),
-      };
-    default:
-      return state;
-  }
-};
+const persistedContactsReducer = persistReducer(persistConfig, contactsReducer);
 
 export const store = configureStore({
-  reducer: rootReducer,
+  reducer: {
+    contacts: persistedContactsReducer,
+    filters: filtersReducer,
+  },
+  preloadedState: {
+    contacts: {
+      items: initialContacts,
+    },
+    // filters: {
+    //   name: "",
+    // },x
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }),
 });
 
-// const addNewContact = (value) => {
-//   return {
-//     type: "contacts/addNewContact",
-//     payload: value,
-//   };
-// };
-
-export const addNewContact = createAction("contacts/addNewContact");
-
-// addNewContact({ id: "id-5", name: "James Born", number: "777-91-26" });
-
-export const deleteAnyContact = createAction("contacts/deleteAnyContact");
+export const persistor = persistStore(store);
